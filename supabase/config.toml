@@ -1,0 +1,7 @@
+project_id = "ovhkzjwygkncraxkybvy"
+
+[functions.summarize-signal]
+verify_jwt = false
+
+[functions.generate-trend-description]
+verify_jwt = false
