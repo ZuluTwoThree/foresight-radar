@@ -5,6 +5,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { SignalsPage } from '@/components/signals/SignalsPage';
+import { TrendsPage } from '@/components/trends/TrendsPage';
 import { TrendRadar } from '@/components/visualizations/TrendRadar';
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
@@ -52,7 +53,7 @@ export default function Dashboard() {
       case '/network':
         return <NetworkGraph />;
       case '/trends':
-        return <DashboardContent />; // TODO: Dedicated trends page
+        return <TrendsPage />;
       default:
         return <DashboardContent />;
     }

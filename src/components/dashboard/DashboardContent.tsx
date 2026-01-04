@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SignalCollector } from '@/components/signals/SignalCollector';
 import { QuickTrendForm } from '@/components/trends/QuickTrendForm';
+import { ExportPanel } from '@/components/export/ExportPanel';
 import {
   Zap,
   TrendingUp,
@@ -14,6 +15,7 @@ import {
   ExternalLink,
   Clock,
   Loader2,
+  Download,
 } from 'lucide-react';
 
 interface Signal {
@@ -131,6 +133,14 @@ export function DashboardContent() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ExportPanel
+            trigger={
+              <Button variant="outline">
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            }
+          />
           <Button variant="outline" onClick={() => setShowTrendForm(true)}>
             <Plus className="w-4 h-4" />
             New Trend
