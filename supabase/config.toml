@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-trend-description]
 verify_jwt = false
+
+[functions.firecrawl-scrape]
+verify_jwt = false
