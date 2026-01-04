@@ -60,29 +60,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (!user) return null;
 
     try {
-      // First insert workspace without select (to avoid RLS select check before member exists)
-      const { data: insertedData, error: workspaceError } = await supabase
-        .from('workspaces')
-        .insert({ name })
-        .select('id')
-        .single();
+      // Use atomic function to create workspace and add owner
+      const { data: workspaceId, error: createError } = await supabase
+        .rpc('create_workspace_with_owner', { workspace_name: name });
 
-      if (workspaceError) throw workspaceError;
+      if (createError) throw createError;
 
-      const workspaceId = insertedData.id;
-
-      // Add user as owner immediately
-      const { error: memberError } = await supabase
-        .from('members')
-        .insert({
-          workspace_id: workspaceId,
-          user_id: user.id,
-          role: 'owner'
-        });
-
-      if (memberError) throw memberError;
-
-      // Now fetch the full workspace (user is now a member so RLS allows SELECT)
+      // Fetch the created workspace (user is now a member)
       const { data: workspace, error: fetchError } = await supabase
         .from('workspaces')
         .select('*')
