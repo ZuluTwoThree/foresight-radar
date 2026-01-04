@@ -35,6 +35,17 @@ serve(async (req) => {
       );
     }
 
+    // Minimum content validation to prevent hallucination
+    const MIN_CONTENT_LENGTH = 100;
+    if (content.trim().length < MIN_CONTENT_LENGTH) {
+      return new Response(
+        JSON.stringify({ 
+          error: `Content too short. Please provide at least ${MIN_CONTENT_LENGTH} characters for meaningful analysis. Currently: ${content.trim().length} characters.`
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");
@@ -44,25 +55,34 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a strategic foresight analyst. Your task is to analyze content and extract key insights for trend analysis.
+    const systemPrompt = `You are a strategic foresight analyst. Analyze the PROVIDED content and extract insights.
 
-You MUST respond with valid JSON matching this exact schema:
+CRITICAL ANTI-HALLUCINATION RULES:
+1. ONLY use information EXPLICITLY stated in the provided content
+2. NEVER invent, assume, or infer facts not present in the source text
+3. Do NOT use the URL or title to guess content - analyze only what is given
+4. Every statement in your summary must be directly traceable to the source
+5. If content is too short or vague to analyze meaningfully, return an error
+6. Do NOT make up company names, statistics, dates, or claims not in the text
+
+If content is insufficient for meaningful analysis, respond with:
+{"error": "insufficient_content", "message": "The provided content is too vague for meaningful analysis."}
+
+Otherwise, respond with valid JSON matching this schema:
 {
-  "summary": "string (max 150 words, concise summary of the key points)",
-  "takeaways": ["string", "string", "string"] (exactly 3 bullet-point takeaways),
-  "tags": ["kebab-case-tag"] (2-6 lowercase kebab-case tags describing themes),
-  "relevance": number (0-100, how relevant this is for strategic foresight),
-  "horizon": "0_5" | "5_10" | "10_plus" (time horizon: 0-5 years, 5-10 years, or 10+ years),
-  "certainty": "certain" | "uncertain" | "wildcard" (how certain is this development)
+  "summary": "string (max 150 words - summarize ONLY what is explicitly stated)",
+  "takeaways": ["string", "string", "string"] (3 key points FROM the text only),
+  "tags": ["kebab-case"] (2-6 tags derived FROM the content themes),
+  "relevance": number (0-100, strategic importance based on stated facts),
+  "horizon": "0_5" | "5_10" | "10_plus" (time horizon if mentioned, else "5_10"),
+  "certainty": "certain" | "uncertain" | "wildcard" (based on language in source)
 }
 
 Guidelines:
-- Summary should be in the same language as the source content
-- Tags should be in English and lowercase kebab-case (e.g., "artificial-intelligence", "sustainability")
-- Relevance considers strategic importance, disruptiveness, and scope of impact
-- Horizon considers when this trend will have significant impact
-- Certainty: "certain" for established trends, "uncertain" for emerging patterns, "wildcard" for speculative developments`;
-
+- Summary language should match the source content language
+- Tags must be lowercase kebab-case English (e.g., "precision-fermentation")
+- Relevance considers strategic importance and scope mentioned in the text
+- Certainty: "certain" if source uses definitive language, "uncertain" for speculative content, "wildcard" for highly disruptive/unexpected developments`;
     const userPrompt = `Analyze this content for strategic foresight:
 
 ${title ? `Title: ${title}\n` : ""}${url ? `Source URL: ${url}\n` : ""}
