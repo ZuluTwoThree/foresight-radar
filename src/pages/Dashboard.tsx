@@ -6,8 +6,10 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { SignalsPage } from '@/components/signals/SignalsPage';
 import { TrendsPage } from '@/components/trends/TrendsPage';
+import { MegatrendsPage } from '@/components/megatrends/MegatrendsPage';
 import { TrendRadar } from '@/components/visualizations/TrendRadar';
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph';
+import { SettingsPage } from '@/components/settings/SettingsPage';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Loader2 } from 'lucide-react';
 
@@ -48,12 +50,16 @@ export default function Dashboard() {
     switch (location.pathname) {
       case '/signals':
         return <SignalsPage />;
+      case '/trends':
+        return <TrendsPage />;
+      case '/megatrends':
+        return <MegatrendsPage />;
       case '/radar':
         return <TrendRadar />;
       case '/network':
         return <NetworkGraph />;
-      case '/trends':
-        return <TrendsPage />;
+      case '/settings':
+        return <SettingsPage />;
       default:
         return <DashboardContent />;
     }
