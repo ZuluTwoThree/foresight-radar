@@ -14,7 +14,7 @@ import {
   Sparkles,
   FileText,
   Check,
-  AlertCircle,
+  Download,
 } from 'lucide-react';
 
 interface SignalCollectorProps {
@@ -42,13 +42,77 @@ export function SignalCollector({ onClose, onSuccess }: SignalCollectorProps) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [aiResult, setAiResult] = useState<AISummary | null>(null);
 
+  const handleFetchUrl = async () => {
+    if (!url.trim()) {
+      toast({
+        title: 'URL required',
+        description: 'Please enter a URL to fetch.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setFetching(true);
+    try {
+      const response = await supabase.functions.invoke('firecrawl-scrape', {
+        body: { url: url.trim() },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const data = response.data;
+      if (!data.success && data.error) {
+        throw new Error(data.error);
+      }
+
+      // Extract content from response (handle both data.data.markdown and data.markdown)
+      const markdown = data.data?.markdown || data.markdown || '';
+      const pageTitle = data.data?.metadata?.title || data.metadata?.title || '';
+
+      if (!markdown) {
+        throw new Error('No content could be extracted from this URL');
+      }
+
+      setContent(markdown);
+      if (!title.trim() && pageTitle) {
+        setTitle(pageTitle);
+      }
+
+      toast({
+        title: 'Content fetched',
+        description: `Retrieved ${markdown.length.toLocaleString()} characters from the URL.`,
+      });
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast({
+        title: 'Fetch failed',
+        description: error instanceof Error ? error.message : 'Could not fetch URL content.',
+        variant: 'destructive',
+      });
+    } finally {
+      setFetching(false);
+    }
+  };
+
   const handleAnalyze = async () => {
-    if (!content.trim() && !url.trim()) {
+    if (!content.trim()) {
       toast({
         title: 'Content required',
-        description: 'Please enter a URL or paste content to analyze.',
+        description: 'Please fetch URL content or paste text to analyze.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (content.trim().length < 100) {
+      toast({
+        title: 'Content too short',
+        description: 'Please provide at least 100 characters of content for meaningful analysis.',
         variant: 'destructive',
       });
       return;
@@ -56,13 +120,9 @@ export function SignalCollector({ onClose, onSuccess }: SignalCollectorProps) {
 
     setAnalyzing(true);
     try {
-      // If URL provided but no content, we'd normally fetch it
-      // For now, we require content to be pasted
-      const textToAnalyze = content.trim() || `URL: ${url}`;
-
       const response = await supabase.functions.invoke('summarize-signal', {
         body: {
-          content: textToAnalyze,
+          content: content.trim(),
           title: title || undefined,
           url: url || undefined,
         },
@@ -70,6 +130,10 @@ export function SignalCollector({ onClose, onSuccess }: SignalCollectorProps) {
 
       if (response.error) {
         throw new Error(response.error.message);
+      }
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
       }
 
       setAiResult(response.data);
@@ -197,33 +261,62 @@ export function SignalCollector({ onClose, onSuccess }: SignalCollectorProps) {
           {mode === 'url' && (
             <div className="space-y-2">
               <label className="text-sm font-medium">URL</label>
-              <Input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://example.com/article"
-                className="bg-secondary/50"
-              />
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com/article"
+                  className="bg-secondary/50 flex-1"
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleFetchUrl}
+                  disabled={fetching || !url.trim()}
+                >
+                  {fetching ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  {fetching ? 'Fetching...' : 'Fetch'}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Click "Fetch" to automatically extract content from the URL
+              </p>
             </div>
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              {mode === 'url' ? 'Content (paste article text)' : 'Content'}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">
+                {mode === 'url' ? 'Content' : 'Content'}
+              </label>
+              <span className="text-xs text-muted-foreground">
+                {content.length.toLocaleString()} characters
+              </span>
+            </div>
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste the article content or key excerpts here..."
+              placeholder={mode === 'url' 
+                ? "Content will appear here after fetching, or paste manually..." 
+                : "Paste the article content or key excerpts here..."}
               className="bg-secondary/50 min-h-[150px]"
             />
+            {content.length > 0 && content.length < 100 && (
+              <p className="text-xs text-amber-500">
+                Minimum 100 characters required for analysis
+              </p>
+            )}
           </div>
 
           {/* Analyze Button */}
           <Button
             variant="outline"
             onClick={handleAnalyze}
-            disabled={analyzing || (!content.trim() && !url.trim())}
+            disabled={analyzing || content.trim().length < 100}
             className="w-full"
           >
             {analyzing ? (
