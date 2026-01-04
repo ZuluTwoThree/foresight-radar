@@ -15,6 +15,7 @@ import {
   Plus,
   Menu,
   X,
+  Globe,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
   { icon: Zap, label: 'Signals', href: '/signals' },
   { icon: TrendingUp, label: 'Trends', href: '/trends' },
+  { icon: Globe, label: 'Megatrends', href: '/megatrends' },
   { icon: Radar, label: 'Trend Radar', href: '/radar' },
   { icon: Network, label: 'Network', href: '/network' },
 ];
