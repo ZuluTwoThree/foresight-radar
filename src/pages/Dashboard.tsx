@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
+import { SignalsPage } from '@/components/signals/SignalsPage';
+import { TrendRadar } from '@/components/visualizations/TrendRadar';
+import { NetworkGraph } from '@/components/visualizations/NetworkGraph';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Loader2 } from 'lucide-react';
 
@@ -11,6 +14,7 @@ export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const { workspaces, loading: workspaceLoading, currentWorkspace } = useWorkspace();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -38,9 +42,25 @@ export default function Dashboard() {
     return <OnboardingWizard />;
   }
 
+  // Route to correct content based on path
+  const renderContent = () => {
+    switch (location.pathname) {
+      case '/signals':
+        return <SignalsPage />;
+      case '/radar':
+        return <TrendRadar />;
+      case '/network':
+        return <NetworkGraph />;
+      case '/trends':
+        return <DashboardContent />; // TODO: Dedicated trends page
+      default:
+        return <DashboardContent />;
+    }
+  };
+
   return (
     <DashboardLayout>
-      <DashboardContent />
+      {renderContent()}
     </DashboardLayout>
   );
 }
