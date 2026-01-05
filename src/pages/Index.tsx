@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Radar, TrendingUp, Network, Zap, ArrowRight, Sparkles } from 'lucide-react';
+import { Radar, TrendingUp, Network, Zap, ArrowRight, Sparkles, Globe } from 'lucide-react';
 
 export default function Index() {
   const { user, loading } = useAuth();
@@ -31,7 +31,7 @@ export default function Index() {
             <span className="font-display text-xl font-semibold">Foresight</span>
           </div>
           <Button variant="glow" onClick={() => navigate('/auth')}>
-            Get Started
+            Loslegen
             <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
@@ -43,26 +43,23 @@ export default function Index() {
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm animate-fade-in">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-muted-foreground">AI-Powered Strategic Intelligence</span>
+              <span className="text-muted-foreground">Foresight-Plattform für Innovations- und Strategieteams</span>
             </div>
 
             <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight animate-slide-up">
-              Transform Weak Signals into
-              <span className="text-gradient block mt-2">Strategic Advantage</span>
+              Von Artikeln und Quellen zu
+              <span className="text-gradient block mt-2">strukturierten Zukunftstrends</span>
             </h1>
 
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              Collect, analyze, and visualize emerging trends with AI-powered foresight. 
-              From scattered signals to actionable insights—in one intelligent platform.
+              Sammeln Sie Signale aus dem Web, clustern Sie diese automatisch zu Trends, 
+              und visualisieren Sie Ihre Erkenntnisse in interaktiven Radars und Netzwerken.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <Button variant="glow" size="xl" onClick={() => navigate('/auth')}>
-                Start Free Trial
+                Kostenlos starten
                 <ArrowRight className="w-5 h-5" />
-              </Button>
-              <Button variant="glass" size="xl" onClick={() => navigate('/auth')}>
-                Watch Demo
               </Button>
             </div>
           </div>
@@ -70,22 +67,27 @@ export default function Index() {
 
         {/* Features Grid */}
         <section className="container mx-auto px-6 py-24">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: Zap,
                 title: 'Signal Collection',
-                description: 'Capture signals from web, RSS, and manual inputs. AI auto-summarizes and classifies every entry.',
+                description: 'URLs einfügen, Inhalte automatisch extrahieren. KI fasst zusammen und vergibt Tags, Zeithorizont und Relevanz-Score.',
               },
               {
                 icon: TrendingUp,
                 title: 'Trend Radar',
-                description: 'Visualize trends by time horizon and impact. Interactive radar charts that evolve with your data.',
+                description: 'Ordnen Sie Trends nach Zeithorizont (0-5, 5-10, 10+ Jahre) und Impact. Interaktive Radar-Visualisierung mit Drill-Down.',
               },
               {
                 icon: Network,
                 title: 'Network Analysis',
-                description: 'Map relationships between signals and trends. Discover hidden patterns in your foresight data.',
+                description: 'Visualisieren Sie Verbindungen zwischen Signalen, Trends und Megatrends als interaktives Netzwerk-Diagramm.',
+              },
+              {
+                icon: Globe,
+                title: 'Megatrends',
+                description: 'Fassen Sie verwandte Trends zu übergeordneten Megatrends zusammen. Behalten Sie das strategische Gesamtbild im Blick.',
               },
             ].map((feature, index) => (
               <div
@@ -109,13 +111,13 @@ export default function Index() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10" />
             <div className="relative p-12 md:p-20 text-center">
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">
-                Ready to see the future more clearly?
+                Starten Sie Ihre erste Trend-Analyse in 5 Minuten
               </h2>
               <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-                Join foresight teams using AI to transform how they identify and track emerging trends.
+                Kostenlos starten. Signale sammeln, Trends erkennen, Zukunft visualisieren.
               </p>
               <Button variant="glow" size="xl" onClick={() => navigate('/auth')}>
-                Create Your Workspace
+                Kostenlos starten
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </div>
@@ -126,7 +128,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/50 py-8">
         <div className="container mx-auto px-6 text-center text-muted-foreground text-sm">
-          <p>&copy; 2024 Foresight Platform. Strategic intelligence for tomorrow's leaders.</p>
+          <p>&copy; 2024 Foresight Platform. Zukunftstrends erkennen und visualisieren.</p>
         </div>
       </footer>
     </div>
